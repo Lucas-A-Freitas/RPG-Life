@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>RPG da Vida Real</title>
+<meta name="description" content="Transforme suas tarefas do dia a dia em missões, ganhe XP e suba de nível." />
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#120f1a" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<link rel="icon" href="icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="RPG Vida" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --gold: #e8b04b;
+    --text: #ece4d3;
+    --muted: #8b8397;
+    --faint: #5f5870;
+    --forca: #c4453a;
+    --intelecto: #4a90a4;
+    --disciplina: #5a8a6b;
+    --criatividade: #8b6bb1;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(ellipse at top, #1e1a2a 0%, #120f1a 65%);
+    min-height: 100vh;
+    color: var(--text);
+  }
+  .font-display { font-family: 'Cinzel', serif; }
+
+  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; }
+
+  button { cursor: pointer; border: none; background: transparent; font-family: inherit; color: inherit; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  button:active { transform: scale(0.97); }
+  button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  input:focus, textarea:focus { outline: 2px solid var(--gold); outline-offset: 2px; }
+  input::placeholder { color: var(--faint); }
+  input[type="checkbox"] { accent-color: var(--gold); width: 16px; height: 16px; }
+  label { -webkit-tap-highlight-color: transparent; }
+  a { color: var(--gold); }
+
+  .px-5 { padding-left: 20px; padding-right: 20px; }
+  .section { padding: 16px 20px; }
+
+  /* header */
+  .header { padding: 24px 20px 20px; }
+  .row-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 4px 0; }
+  .name-row { display: flex; align-items: center; gap: 6px; }
+  .name-text { font-size: 14px; color: var(--muted); }
+  .icon-btn-sm { padding: 8px; margin: -8px; opacity: 0.65; font-size: 12px; line-height: 1; }
+  .name-input { background: transparent; border: none; border-bottom: 1px solid var(--gold); color: var(--text); font-size: 16px; padding: 2px 0; font-family: inherit; }
+  .completions { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--faint); white-space: nowrap; }
+  .level-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+  .level-label { font-size: 13px; color: var(--muted); letter-spacing: 0.5px; }
+  .level-num { font-size: 46px; font-weight: 700; color: var(--gold); line-height: 1; }
+  .xp-label-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .xp-bar-bg { height: 9px; border-radius: 5px; background: rgba(255,255,255,0.07); overflow: hidden; }
+  .xp-bar-fill { height: 100%; background: linear-gradient(90deg, var(--gold), #ffd97a); box-shadow: 0 0 8px rgba(232,176,75,0.55); transition: width 1s ease-out; width: 0%; }
+
+  /* attributes */
+  .attrs-grid { padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .attr-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 12px; }
+  .attr-label { color: var(--muted); }
+  .attr-lvl { margin-left: auto; font-weight: 600; }
+  .attr-bar-bg { height: 3px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .attr-bar-fill { height: 100%; transition: width 1s ease-out; width: 0%; }
+
+  /* tabs */
+  .tabs { display: flex; padding: 16px 20px 0; gap: 20px; }
+  .tab-btn { display: flex; align-items: center; gap: 6px; padding-top: 4px; padding-bottom: 10px; font-size: 14px; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; transition: color 0.2s ease, border-color 0.2s ease; }
+  .tab-btn.active { color: var(--gold); font-weight: 600; border-bottom: 2px solid var(--gold); }
+
+  .tab-content { padding: 16px 20px; }
+
+  /* add button */
+  .add-btn { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 10px; margin-bottom: 16px; font-size: 14px; font-weight: 500; background: rgba(232,176,75,0.08); border: 1px dashed rgba(232,176,75,0.4); color: var(--gold); }
+
+  /* forms */
+  .form-box { margin-bottom: 16px; padding: 16px; border-radius: 10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
+  .field-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); color: var(--text); border-radius: 6px; padding: 8px 12px; font-size: 16px; font-family: inherit; margin-bottom: 12px; }
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .cat-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px; border-radius: 8px; font-size: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); }
+  .cat-btn.active { border: 1px solid var(--cat-color); color: var(--cat-color); background: color-mix(in srgb, var(--cat-color) 13%, transparent); }
+  .xp-opt-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .xp-opt-btn { flex: 1; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 500; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--muted); }
+  .xp-opt-btn.active { background: rgba(232,176,75,0.18); color: var(--gold); border: 1px solid var(--gold); }
+  .checkbox-label { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: 12px; color: var(--muted); padding: 4px 0; }
+  .level-req-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .level-req-row .field-input { width: 72px; margin-bottom: 0; }
+  .form-actions { display: flex; gap: 8px; }
+  .btn-primary { flex: 1; padding: 10px; border-radius: 6px; font-size: 14px; font-weight: 600; background: var(--gold); color: #1a1625; }
+  .btn-secondary { padding: 10px 16px; border-radius: 6px; font-size: 14px; background: rgba(255,255,255,0.05); color: var(--muted); }
+
+  .empty-msg { font-size: 14px; text-align: center; padding: 24px 0; color: var(--muted); }
+
+  /* rows */
+  .row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .row.done { opacity: 0.5; }
+  .stripe { width: 3px; align-self: stretch; border-radius: 2px; flex-shrink: 0; }
+  .toggle-btn { flex-shrink: 0; padding: 12px; margin: -12px; line-height: 0; }
+  .del-btn { flex-shrink: 0; opacity: 0.5; padding: 10px; margin: -10px; font-size: 13px; }
+  .row-body { flex: 1; min-width: 0; }
+  .row-title { font-size: 14px; color: var(--text); }
+  .row-title.strike { text-decoration: line-through; }
+  .streak { font-size: 12px; color: var(--gold); margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+  .xp-badge { font-size: 12px; font-weight: 500; color: var(--muted); flex-shrink: 0; }
+  .cat-emoji { flex-shrink: 0; font-size: 14px; }
+  .reward-icon { flex-shrink: 0; font-size: 16px; }
+  .row-sub { font-size: 12px; margin-top: 2px; color: var(--faint); }
+  .claim-btn { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 6px; flex-shrink: 0; background: rgba(232,176,75,0.15); color: var(--gold); border: 1px solid rgba(232,176,75,0.4); }
+
+  .done-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; margin-top: 20px; }
+  .done-label { font-size: 12px; color: var(--faint); }
+  .clear-btn { font-size: 12px; color: var(--faint); padding: 4px 6px; margin: -4px -6px; }
+
+  .footer { padding: 4px 20px 20px; text-align: center; }
+  .reset-link { font-size: 12px; color: var(--faint); padding: 6px 8px; margin: -6px -8px; }
+  .reset-link.confirm { color: var(--forca); }
+
+  .toast { position: absolute; top: 18px; right: 18px; background: var(--gold); color: #1a1625; padding: 5px 12px; border-radius: 20px; font-weight: 700; font-size: 12.5px; z-index: 60; animation: floatUp 1.4s ease forwards; }
+  @keyframes floatUp {
+    0% { opacity: 0; transform: translateY(8px); }
+    15% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-16px); }
+  }
+
+  .levelup-overlay { position: fixed; inset: 0; background: rgba(10,8,15,0.9); display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; }
+  .levelup-box { text-align: center; padding: 0 24px; }
+  .levelup-trophy { font-size: 52px; margin-bottom: 10px; }
+  .levelup-sub { color: var(--gold); font-size: 18px; letter-spacing: 1px; margin-bottom: 4px; }
+  .levelup-num { color: var(--text); font-size: 40px; font-weight: 700; margin-bottom: 10px; }
+  .levelup-hint { color: var(--muted); font-size: 14px; }
+
+  .loading-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app"><div class="loading-screen">Carregando sua jornada...</div></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var ATTRS = {
+    forca: { label: 'Força', emoji: '⚔️', color: '#c4453a' },
+    intelecto: { label: 'Intelecto', emoji: '🧠', color: '#4a90a4' },
+    disciplina: { label: 'Disciplina', emoji: '🛡️', color: '#5a8a6b' },
+    criatividade: { label: 'Criatividade', emoji: '✨', color: '#8b6bb1' }
+  };
+  var GOLD = '#e8b04b';
+  var STORAGE_KEY = 'rpg-vida-state-v1';
+  var XP_OPTIONS = [
+    { label: 'Pequena', value: 10 },
+    { label: 'Média', value: 25 },
+    { label: 'Grande', value: 50 },
+    { label: 'Épica', value: 100 }
+  ];
+
+  function xpForLevel(level) { return 100 + (level - 1) * 40; }
+  function getLevelInfo(totalXp) {
+    var level = 1, remaining = totalXp;
+    while (remaining >= xpForLevel(level)) { remaining -= xpForLevel(level); level += 1; }
+    return { level: level, currentXp: remaining, neededXp: xpForLevel(level) };
+  }
+  function attrLevel(xp) { return Math.floor(xp / 60) + 1; }
+  function todayStr() { return new Date().toDateString(); }
+  function yesterdayStr() { var d = new Date(); d.setDate(d.getDate() - 1); return d.toDateString(); }
+  function uid(p) { return p + Date.now() + Math.floor(Math.random() * 1000); }
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = String(s == null ? '' : s);
+    return d.innerHTML;
+  }
+
+  var DEFAULT_TASKS = [
+    { id: 't1', title: 'Se exercitar', category: 'forca', xpValue: 30, recurring: true, completed: false, lastCompletedDate: null, streak: 0 },
+    { id: 't2', title: 'Estudar 30 minutos', category: 'intelecto', xpValue: 30, recurring: true, completed: false, lastCompletedDate: null, streak: 0 },
+    { id: 't3', title: 'Arrumar o quarto', category: 'disciplina', xpValue: 15, recurring: true, completed: false, lastCompletedDate: null, streak: 0 },
+    { id: 't4', title: 'Fazer algo criativo', category: 'criatividade', xpValue: 20, recurring: true, completed: false, lastCompletedDate: null, streak: 0 },
+    { id: 't5', title: 'Beber 2L de água', category: 'forca', xpValue: 10, recurring: true, completed: false, lastCompletedDate: null, streak: 0 }
+  ];
+  var DEFAULT_REWARDS = [
+    { id: 'r1', title: '🍕 Pedir uma pizza no fim de semana', levelRequired: 3, repeatable: true, timesClaimed: 0 },
+    { id: 'r2', title: '🎮 1 hora extra de lazer sem culpa', levelRequired: 2, repeatable: true, timesClaimed: 0 },
+    { id: 'r3', title: '🎬 Noite de cinema ou série especial', levelRequired: 5, repeatable: true, timesClaimed: 0 },
+    { id: 'r4', title: '🛍️ Comprar algo que você queria', levelRequired: 8, repeatable: true, timesClaimed: 0 },
+    { id: 'r5', title: '🏆 Uma recompensa grande e especial', levelRequired: 15, repeatable: false, timesClaimed: 0 }
+  ];
+
+  var state = {
+    name: 'Aventureiro',
+    editingName: false,
+    totalXp: 0,
+    totalCompletions: 0,
+    attrXp: { forca: 0, intelecto: 0, disciplina: 0, criatividade: 0 },
+    tasks: DEFAULT_TASKS.map(function (t) { return Object.assign({}, t); }),
+    rewards: DEFAULT_REWARDS.map(function (r) { return Object.assign({}, r); }),
+    tab: 'missions',
+    levelUpInfo: null,
+    xpToast: null,
+    toastTimer: null,
+    resetConfirm: false,
+    showTaskForm: false,
+    showRewardForm: false,
+    taskCategory: 'forca',
+    taskXp: 25,
+    barsReady: false
+  };
+
+  function persist() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        name: state.name,
+        totalXp: state.totalXp,
+        totalCompletions: state.totalCompletions,
+        attrXp: state.attrXp,
+        tasks: state.tasks,
+        rewards: state.rewards
+      }));
+    } catch (e) { /* armazenamento indisponível, segue sem salvar */ }
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data.name) state.name = data.name;
+        if (typeof data.totalXp === 'number') state.totalXp = data.totalXp;
+        if (typeof data.totalCompletions === 'number') state.totalCompletions = data.totalCompletions;
+        if (data.attrXp) state.attrXp = data.attrXp;
+        if (Array.isArray(data.tasks)) state.tasks = data.tasks;
+        if (Array.isArray(data.rewards)) state.rewards = data.rewards;
+      }
+    } catch (e) { /* sem estado salvo ainda */ }
+  }
+
+  function checkDailyReset() {
+    var today = todayStr();
+    state.tasks = state.tasks.map(function (t) {
+      if (t.recurring && t.completed && t.lastCompletedDate !== today) {
+        return Object.assign({}, t, { completed: false });
+      }
+      return t;
+    });
+  }
+
+  function checkboxSvg(done) {
+    if (done) {
+      return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5a8a6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" fill="#5a8a6b" fill-opacity="0.15"/><path d="M20 6L9 17l-5-5"/></svg>';
+    }
+    return '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f5870" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>';
+  }
+
+  function renderHeader() {
+    var li = getLevelInfo(state.totalXp);
+    var pct = state.barsReady ? Math.min(100, (li.currentXp / li.neededXp) * 100) : 0;
+    var nameBlock = state.editingName
+      ? '<input id="name-input" class="name-input" value="' + esc(state.name) + '" />'
+      : '<div class="name-row"><span class="name-text">' + esc(state.name) + '</span>' +
+        '<button data-action="edit-name" class="icon-btn-sm" aria-label="Editar nome">✏️</button></div>';
+    return (
+      '<div class="header">' +
+        '<div class="row-header">' + nameBlock +
+          '<div class="completions">🏆 ' + state.totalCompletions + ' missões cumpridas</div>' +
+        '</div>' +
+        '<div class="level-row"><span class="level-label font-display">Nível</span>' +
+        '<span class="level-num font-display">' + li.level + '</span></div>' +
+        '<div class="xp-label-row"><span>XP</span><span>' + li.currentXp + ' / ' + li.neededXp + '</span></div>' +
+        '<div class="xp-bar-bg"><div class="xp-bar-fill" style="width:' + pct + '%"></div></div>' +
+      '</div>'
+    );
+  }
+
+  function renderAttrs() {
+    var html = '<div class="attrs-grid">';
+    Object.keys(ATTRS).forEach(function (key) {
+      var attr = ATTRS[key];
+      var xp = state.attrXp[key] || 0;
+      var lvl = attrLevel(xp);
+      var pct = state.barsReady ? ((xp % 60) / 60) * 100 : 0;
+      html +=
+        '<div>' +
+          '<div class="attr-top"><span>' + attr.emoji + '</span>' +
+          '<span class="attr-label">' + attr.label + '</span>' +
+          '<span class="attr-lvl" style="color:' + attr.color + '">' + lvl + '</span></div>' +
+          '<div class="attr-bar-bg"><div class="attr-bar-fill" style="width:' + pct + '%;background:' + attr.color + '"></div></div>' +
+        '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function renderTabs() {
+    return (
+      '<div class="tabs">' +
+        '<button class="tab-btn' + (state.tab === 'missions' ? ' active' : '') + '" data-action="tab" data-tab="missions">⚔️ Missões</button>' +
+        '<button class="tab-btn' + (state.tab === 'rewards' ? ' active' : '') + '" data-action="tab" data-tab="rewards">🎁 Recompensas</button>' +
+      '</div>'
+    );
+  }
+
+  function renderTaskForm() {
+    if (!state.showTaskForm) return '';
+    var cats = '';
+    Object.keys(ATTRS).forEach(function (key) {
+      var attr = ATTRS[key];
+      var active = state.taskCategory === key;
+      cats += '<button type="button" class="cat-btn' + (active ? ' active' : '') + '" style="--cat-color:' + attr.color + '" data-action="set-task-cat" data-cat="' + key + '">' +
+        '<span>' + attr.emoji + '</span><span>' + attr.label + '</span></button>';
+    });
+    var xpOpts = '';
+    XP_OPTIONS.forEach(function (opt) {
+      var active = state.taskXp === opt.value;
+      xpOpts += '<button type="button" class="xp-opt-btn' + (active ? ' active' : '') + '" data-action="set-task-xp" data-xp="' + opt.value + '">' + opt.label + '</button>';
+    });
+    return (
+      '<div class="form-box">' +
+        '<input id="task-title-input" class="field-input" placeholder="Nome da missão..." />' +
+        '<div class="cat-grid">' + cats + '</div>' +
+        '<div class="xp-opt-row">' + xpOpts + '</div>' +
+        '<label class="checkbox-label"><input type="checkbox" id="task-recurring-input" checked /> Repetir todo dia (missão diária)</label>' +
+        '<div class="form-actions">' +
+          '<button class="btn-primary" data-action="submit-task">Criar missão</button>' +
+          '<button class="btn-secondary" data-action="close-task-form">Cancelar</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderTaskRow(t) {
+    var attr = ATTRS[t.category];
+    var streakHtml = (t.recurring && t.streak > 1)
+      ? '<div class="streak">🔥 ' + t.streak + ' dias seguidos</div>' : '';
+    return (
+      '<div class="row' + (t.completed ? ' done' : '') + '">' +
+        '<div class="stripe" style="background:' + attr.color + '"></div>' +
+        '<button class="toggle-btn" data-action="complete-task" data-id="' + t.id + '" aria-label="Concluir missão">' + checkboxSvg(t.completed) + '</button>' +
+        '<span class="cat-emoji">' + attr.emoji + '</span>' +
+        '<div class="row-body"><div class="row-title' + (t.completed ? ' strike' : '') + '">' + esc(t.title) + '</div>' + streakHtml + '</div>' +
+        '<span class="xp-badge">+' + t.xpValue + ' XP</span>' +
+        '<button class="del-btn" data-action="delete-task" data-id="' + t.id + '" aria-label="Excluir missão">🗑️</button>' +
+      '</div>'
+    );
+  }
+
+  function renderMissionsTab() {
+    var pending = state.tasks.filter(function (t) { return !t.completed; });
+    var done = state.tasks.filter(function (t) { return t.completed; });
+    var hasClearable = done.some(function (t) { return !t.recurring; });
+    var html = '<button class="add-btn" data-action="open-task-form">➕ Nova missão</button>';
+    html += renderTaskForm();
+    if (pending.length === 0 && done.length === 0) {
+      html += '<p class="empty-msg">Você ainda não tem missões. Que tal criar a primeira?</p>';
+    }
+    pending.forEach(function (t) { html += renderTaskRow(t); });
+    if (done.length > 0) {
+      html += '<div class="done-header"><span class="done-label">Concluídas</span>';
+      if (hasClearable) html += '<button class="clear-btn" data-action="clear-done">Limpar</button>';
+      html += '</div>';
+      done.forEach(function (t) { html += renderTaskRow(t); });
+    }
+    return html;
+  }
+
+  function renderRewardForm() {
+    if (!state.showRewardForm) return '';
+    return (
+      '<div class="form-box">' +
+        '<input id="reward-title-input" class="field-input" placeholder="Ex: Pedir pizza no fim de semana" />' +
+        '<div class="level-req-row"><label style="font-size:12px;color:var(--muted)">Nível necessário</label>' +
+        '<input id="reward-level-input" class="field-input" type="number" min="1" value="3" /></div>' +
+        '<label class="checkbox-label"><input type="checkbox" id="reward-repeatable-input" checked /> Pode resgatar mais de uma vez</label>' +
+        '<div class="form-actions">' +
+          '<button class="btn-primary" data-action="submit-reward">Criar recompensa</button>' +
+          '<button class="btn-secondary" data-action="close-reward-form">Cancelar</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderRewardRow(r) {
+    var li = getLevelInfo(state.totalXp);
+    var unlocked = li.level >= r.levelRequired;
+    var claimed = !r.repeatable && r.timesClaimed > 0;
+    var statusText;
+    if (!unlocked) statusText = 'Nível ' + r.levelRequired + ' necessário';
+    else if (r.repeatable) statusText = r.timesClaimed > 0 ? ('Resgatado ' + r.timesClaimed + 'x') : 'Disponível agora';
+    else statusText = claimed ? 'Já resgatado' : 'Disponível agora';
+    var claimBtn = (unlocked && !claimed)
+      ? '<button class="claim-btn" data-action="claim-reward" data-id="' + r.id + '">Resgatar</button>' : '';
+    return (
+      '<div class="row" style="' + (claimed ? 'opacity:0.45' : '') + '">' +
+        '<span class="reward-icon">' + (unlocked ? '🎁' : '🔒') + '</span>' +
+        '<div class="row-body"><div class="row-title" style="' + (unlocked ? '' : 'color:var(--muted)') + '">' + esc(r.title) + '</div>' +
+        '<div class="row-sub">' + statusText + '</div></div>' +
+        claimBtn +
+        '<button class="del-btn" data-action="delete-reward" data-id="' + r.id + '" aria-label="Excluir recompensa">🗑️</button>' +
+      '</div>'
+    );
+  }
+
+  function renderRewardsTab() {
+    var sorted = state.rewards.slice().sort(function (a, b) { return a.levelRequired - b.levelRequired; });
+    var html = '<button class="add-btn" data-action="open-reward-form">➕ Nova recompensa</button>';
+    html += renderRewardForm();
+    if (sorted.length === 0) {
+      html += '<p class="empty-msg">Nenhuma recompensa ainda. Crie algo que você realmente quer.</p>';
+    }
+    sorted.forEach(function (r) { html += renderRewardRow(r); });
+    return html;
+  }
+
+  function renderFooter() {
+    if (state.resetConfirm) {
+      return '<div class="footer"><button class="reset-link confirm" data-action="do-reset">Clique de novo para confirmar o reset</button></div>';
+    }
+    return '<div class="footer"><button class="reset-link" data-action="ask-reset">Resetar progresso</button></div>';
+  }
+
+  function renderLevelUp() {
+    if (!state.levelUpInfo) return '';
+    return (
+      '<div class="levelup-overlay" data-action="close-levelup">' +
+        '<div class="levelup-box">' +
+          '<div class="levelup-trophy">🏆</div>' +
+          '<div class="levelup-sub font-display">SUBIU DE NÍVEL</div>' +
+          '<div class="levelup-num font-display">Nível ' + state.levelUpInfo.level + '</div>' +
+          '<div class="levelup-hint">Toque para continuar</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderToast() {
+    if (!state.xpToast) return '';
+    return '<div class="toast" key="' + state.xpToast.key + '">+' + state.xpToast.amount + ' XP</div>';
+  }
+
+  function render() {
+    var html =
+      renderHeader() +
+      renderAttrs() +
+      renderTabs() +
+      '<div class="tab-content">' + (state.tab === 'missions' ? renderMissionsTab() : renderRewardsTab()) + '</div>' +
+      renderFooter() +
+      renderToast() +
+      renderLevelUp();
+    document.getElementById('app').innerHTML = html;
+    if (state.editingName) {
+      var input = document.getElementById('name-input');
+      if (input) { input.focus(); input.select(); }
+    }
+  }
+
+  // ---------- actions ----------
+  function completeTask(id) {
+    var task = state.tasks.filter(function (t) { return t.id === id; })[0];
+    if (!task) return;
+    if (task.completed) {
+      state.totalXp = Math.max(0, state.totalXp - task.xpValue);
+      state.totalCompletions = Math.max(0, state.totalCompletions - 1);
+      state.attrXp[task.category] = Math.max(0, (state.attrXp[task.category] || 0) - task.xpValue);
+      state.tasks = state.tasks.map(function (t) {
+        if (t.id !== id) return t;
+        return Object.assign({}, t, { completed: false, lastCompletedDate: null, streak: Math.max(0, (t.streak || 1) - 1) });
+      });
+      persist();
+      render();
+      return;
+    }
+    var li = getLevelInfo(state.totalXp);
+    var prevLevel = li.level;
+    var newTotal = state.totalXp + task.xpValue;
+    var newLevel = getLevelInfo(newTotal).level;
+
+    state.totalXp = newTotal;
+    state.totalCompletions += 1;
+    state.attrXp[task.category] = (state.attrXp[task.category] || 0) + task.xpValue;
+
+    var newStreak = 1;
+    if (task.recurring && task.lastCompletedDate === yesterdayStr()) {
+      newStreak = (task.streak || 0) + 1;
+    }
+    state.tasks = state.tasks.map(function (t) {
+      if (t.id !== id) return t;
+      return Object.assign({}, t, { completed: true, lastCompletedDate: todayStr(), streak: task.recurring ? newStreak : t.streak });
+    });
+
+    persist();
+
+    if (newLevel > prevLevel) state.levelUpInfo = { level: newLevel };
+
+    state.xpToast = { amount: task.xpValue, key: Date.now() };
+    render();
+    if (state.toastTimer) clearTimeout(state.toastTimer);
+    state.toastTimer = setTimeout(function () { state.xpToast = null; render(); }, 1400);
+  }
+
+  function deleteTask(id) {
+    state.tasks = state.tasks.filter(function (t) { return t.id !== id; });
+    persist();
+    render();
+  }
+
+  function clearDone() {
+    state.tasks = state.tasks.filter(function (t) { return !(t.completed && !t.recurring); });
+    persist();
+    render();
+  }
+
+  function submitTask() {
+    var titleInput = document.getElementById('task-title-input');
+    var recurringInput = document.getElementById('task-recurring-input');
+    var title = titleInput ? titleInput.value.trim() : '';
+    if (!title) { if (titleInput) titleInput.focus(); return; }
+    state.tasks.push({
+      id: uid('t'), title: title, category: state.taskCategory, xpValue: state.taskXp,
+      recurring: recurringInput ? recurringInput.checked : true,
+      completed: false, lastCompletedDate: null, streak: 0
+    });
+    state.showTaskForm = false;
+    state.taskCategory = 'forca';
+    state.taskXp = 25;
+    persist();
+    render();
+  }
+
+  function claimReward(id) {
+    state.rewards = state.rewards.map(function (r) {
+      if (r.id !== id) return r;
+      return Object.assign({}, r, { timesClaimed: r.timesClaimed + 1 });
+    });
+    persist();
+    render();
+  }
+
+  function deleteReward(id) {
+    state.rewards = state.rewards.filter(function (r) { return r.id !== id; });
+    persist();
+    render();
+  }
+
+  function submitReward() {
+    var titleInput = document.getElementById('reward-title-input');
+    var levelInput = document.getElementById('reward-level-input');
+    var repeatableInput = document.getElementById('reward-repeatable-input');
+    var title = titleInput ? titleInput.value.trim() : '';
+    if (!title) { if (titleInput) titleInput.focus(); return; }
+    var levelRequired = levelInput ? (Number(levelInput.value) || 1) : 1;
+    state.rewards.push({
+      id: uid('r'), title: title, levelRequired: levelRequired,
+      repeatable: repeatableInput ? repeatableInput.checked : true, timesClaimed: 0
+    });
+    state.showRewardForm = false;
+    persist();
+    render();
+  }
+
+  function doReset() {
+    state.totalXp = 0;
+    state.totalCompletions = 0;
+    state.attrXp = { forca: 0, intelecto: 0, disciplina: 0, criatividade: 0 };
+    state.tasks = DEFAULT_TASKS.map(function (t) { return Object.assign({}, t); });
+    state.rewards = DEFAULT_REWARDS.map(function (r) { return Object.assign({}, r, { timesClaimed: 0 }); });
+    state.resetConfirm = false;
+    persist();
+    render();
+  }
+
+  document.addEventListener('click', function (event) {
+    var el = event.target.closest('[data-action]');
+    if (!el) return;
+    var action = el.getAttribute('data-action');
+    switch (action) {
+      case 'edit-name':
+        state.editingName = true;
+        render();
+        break;
+      case 'tab':
+        state.tab = el.getAttribute('data-tab');
+        render();
+        break;
+      case 'open-task-form':
+        state.showTaskForm = true;
+        render();
+        break;
+      case 'close-task-form':
+        state.showTaskForm = false;
+        render();
+        break;
+      case 'set-task-cat':
+        state.taskCategory = el.getAttribute('data-cat');
+        render();
+        break;
+      case 'set-task-xp':
+        state.taskXp = Number(el.getAttribute('data-xp'));
+        render();
+        break;
+      case 'submit-task':
+        submitTask();
+        break;
+      case 'complete-task':
+        completeTask(el.getAttribute('data-id'));
+        break;
+      case 'delete-task':
+        deleteTask(el.getAttribute('data-id'));
+        break;
+      case 'clear-done':
+        clearDone();
+        break;
+      case 'open-reward-form':
+        state.showRewardForm = true;
+        render();
+        break;
+      case 'close-reward-form':
+        state.showRewardForm = false;
+        render();
+        break;
+      case 'submit-reward':
+        submitReward();
+        break;
+      case 'claim-reward':
+        claimReward(el.getAttribute('data-id'));
+        break;
+      case 'delete-reward':
+        deleteReward(el.getAttribute('data-id'));
+        break;
+      case 'ask-reset':
+        state.resetConfirm = true;
+        render();
+        setTimeout(function () { if (state.resetConfirm) { state.resetConfirm = false; render(); } }, 3000);
+        break;
+      case 'do-reset':
+        doReset();
+        break;
+      case 'close-levelup':
+        state.levelUpInfo = null;
+        render();
+        break;
+    }
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.target && event.target.id === 'name-input' && event.key === 'Enter') {
+      state.name = event.target.value || 'Aventureiro';
+      state.editingName = false;
+      persist();
+      render();
+    }
+  });
+
+  document.addEventListener('blur', function (event) {
+    if (event.target && event.target.id === 'name-input') {
+      state.name = event.target.value.trim() || 'Aventureiro';
+      state.editingName = false;
+      persist();
+      render();
+    }
+  }, true);
+
+  function init() {
+    load();
+    checkDailyReset();
+    render();
+    setTimeout(function () { state.barsReady = true; render(); }, 80);
+    setInterval(function () {
+      var before = JSON.stringify(state.tasks);
+      checkDailyReset();
+      if (JSON.stringify(state.tasks) !== before) { persist(); render(); }
+    }, 60000);
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('service-worker.js').catch(function () {});
+      });
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

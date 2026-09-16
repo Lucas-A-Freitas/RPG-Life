@@ -1,0 +1,19 @@
+{
+  "name": "RPG da Vida Real",
+  "short_name": "RPG Vida",
+  "description": "Transforme suas tarefas do dia a dia em missões, ganhe XP e suba de nível.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "background_color": "#120f1a",
+  "theme_color": "#120f1a",
+  "orientation": "portrait",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
