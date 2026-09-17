@@ -1,0 +1,26 @@
+Keep this file and signing.keystore in a safe place. You'll need these files if you want to upload future versions of your PWA to the Google Play Store.
+
+Key store file: signing.keystore
+Key store password: XtukJaOFfzCL
+Key alias: my-key-alias
+Key password: XtukJaOFfzCL
+Signer's full name: RPG Vida Admin
+Signer's organization: RPG da Vida Real
+Signer's organizational unit: Engineering
+Signer's country code: US
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.lucas_a_freitas.twa",
+        "sha256_cert_fingerprints": ["13:92:B1:87:24:CD:CF:A4:23:3A:A5:44:F7:C2:00:76:A5:75:49:42:CF:3F:53:C9:D1:85:4D:69:16:1A:3A:E4"]
+      }
+    }]
+
+<html>
+    <body>
+        <script>
+            window.location = "https://docs.pwabuilder.com/#/builder/android?id=publish";
+        </script>
+    </body>
+</html>
